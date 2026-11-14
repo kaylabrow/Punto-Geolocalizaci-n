@@ -122,7 +122,7 @@ struct PointRow: View {
                     .foregroundStyle(.tertiary)
                     .lineLimit(1)
             }
-            Text(point.createdAt, style: .relative)
+            Text(point.createdAt.formatted(date: .abbreviated, time: .shortened))
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
         }
