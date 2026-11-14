@@ -1,1 +1,45 @@
+name: Build iOS IPA (Device)
 
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install XcodeGen
+      run: brew install xcodegen
+
+    - name: Generate Xcode Project
+      run: |
+        cd GeoPuntos
+        xcodegen generate
+
+    - name: Build App for iOS Device
+      run: |
+        cd GeoPuntos
+        xcodebuild -project GeoPuntos.xcodeproj \
+                   -scheme GeoPuntos \
+                   -sdk iphoneos \
+                   -configuration Release \
+                   build \
+                   CODE_SIGN_IDENTITY="" \
+                   CODE_SIGNING_REQUIRED=NO \
+                   CODE_SIGNING_ALLOWED=NO
+
+    - name: Package as IPA
+      run: |
+        mkdir Payload
+        cp -r ~/Library/Developer/Xcode/DerivedData/*/Build/Products/Release-iphoneos/*.app Payload/
+        zip -r GeoPuntos.ipa Payload
+
+    - name: Upload IPA Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: GeoPuntos-IPA
+        path: GeoPuntos.ipa
